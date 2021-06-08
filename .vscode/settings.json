@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/81bdff31-68f9-4ff9-90dd-d3f78fc6a138/resourceGroups/Course3TechConf/providers/Microsoft.Web/sites/course3techconf",
+    "appService.deploySubpath": "web"
+}

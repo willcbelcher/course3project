@@ -19,7 +19,7 @@ Jinja2==2.11.2
 lazy-object-proxy==1.4.3
 MarkupSafe==1.1.1
 mccabe==0.6.1
-msrest==0.6.13
+msrest==0.6.17
 msrestazure==0.6.3
 oauthlib==3.1.0
 psycopg2==2.8.5
