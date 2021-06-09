@@ -61,11 +61,19 @@ You will need to install the following locally:
 ## Monthly Cost Analysis
 Complete a month cost analysis of each Azure resource to give an estimate total cost using the table below:
 
-| Azure Resource | Service Tier | Monthly Cost |
-| ------------ | ------------ | ------------ |
-| *Azure Postgres Database* |     |              |
-| *Azure Service Bus*   |         |              |
-| ...                   |         |              |
+| Azure Resource             | Service Tier     | Monthly Cost |
+| -------------------------- | ---------------- | ------------ |
+| *Azure Postgres Database*  | Basic            | $25.80 |
+| *Azure Service Bus*        | Basic            |  $0.05 |
+| *App Service Plan and App* | Consumption Plan | Free (at current load) |
+| *Storage Account*          | General Purpose  |  0.0184 per GB * 20 GB ~= $0.92 | 
+| *Function App*             | Consumption Plan | Free (at current load) |
+
+Estimated total monthly cost at current load: $26.77
+This assumes a value for the amount of storage i will be using, along with the assumption that the application will never need to scale beyond the "free" app service plan tiers.
 
 ## Architecture Explanation
-This is a placeholder section where you can provide an explanation and reasoning for your architecture selection for both the Azure Web App and Azure Function.
+
+An Azure Web App is the appropriate choice to deploy this application, especially over a VM. The app service made it quick and easy to deploy the app, without having to worry about the infrastructure behind the app. Because it is a relatively simple app, it doesn't need the extra features and flexibility that come with deploying from a VM. In addition, the Azure App service makes it very easy to push updates to the application as you change things.
+
+In addition, using a service bus makes the most sense for this application because of the large number of attendees. The service bus queue is a background job in Azure that allows for the job to run in the background simultaneously as the application is running. This means that the admin of the site can continue to usse it withoug resulting in an HTTP timeout or other resultant issues. They can simply send the notification, then continue using the site while the service bus loops and sends emails in the background without disrupting the application. 
