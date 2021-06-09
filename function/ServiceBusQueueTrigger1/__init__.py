@@ -1,4 +1,5 @@
 import logging
+from web.app.routes import notification
 import azure.functions as func
 import psycopg2-binary
 import os
@@ -12,14 +13,20 @@ def main(msg: func.ServiceBusMessage):
     logging.info('Python ServiceBus queue trigger processed message: %s',notification_id)
 
     # TODO: Get connection to database
-    conn = psycopg2.connect("dbname=techconfdb user=udacityadmin@techconfdbserver")
+    conn = psycopg2.connect(dbname="techconfdb" user="udacityadmin@techconfdbserver", password = "Udacity@")
     cur = conn.cursor()
 
     try:
         # TODO: Get notification message and subject from database using the notification_id
-        cur.execute("SELECT * FROM notification WHERE id = notification_id")
-        logging.info('Here is cur.fetchone(): ', cur.fetchone())
-        
+        notification = cur.execute("SELECT message, subject FROM notification WHERE id = {};".format(notification_id))
+        attendee_list = cur.execute("SELECT first_name, last_name, email FROM attendee;")
+        for attendee in attendee_list:
+            message = Mail(from_email='info@techconf.com',to_emails=attendee[2],subject=notification[1],plain_text_contents=notification[0])
+            try:
+                sg=SendGridAPIClient('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"')
+                sg.send(message)
+            except Exception as e:
+                print(e.messsage)
 
         # TODO: Get attendees email and name
 

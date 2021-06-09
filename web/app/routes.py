@@ -6,6 +6,7 @@ from azure.servicebus import Message
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 import logging
+from azure.servicebus import ServiceBusClient
 
 @app.route('/')
 def index():
@@ -73,22 +74,32 @@ def notification():
             #################################################
             attendees = Attendee.query.all()
 
-            for attendee in attendees:
-                subject = '{}: {}'.format(attendee.first_name, notification.subject)
-                send_email(attendee.email, subject, notification.message)
+            # for attendee in attendees:
+            #     subject = '{}: {}'.format(attendee.first_name, notification.subject)
+            #     send_email(attendee.email, subject, notification.message)
 
-            notification.completed_date = datetime.utcnow()
-            notification.status = 'Notified {} attendees'.format(len(attendees))
-            db.session.commit()
+            # notification.completed_date = datetime.utcnow()
+            # notification.status = 'Notified {} attendees'.format(len(attendees))
+            # db.session.commit()
             # TODO Call servicebus queue_client to enqueue notification ID
+            logging.error("in try block")
+            logging.error(ServiceBusClient.from_connection_string('Endpoint=sb://course3techconf.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=5mqjR+2H7mxrcdCBtKqrlJdfLRfnUrqhSsiHMk4yVCI='))
+            sb_client = ServiceBusClient.from_connection_string('Endpoint=sb://course3techconf.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=5mqjR+2H7mxrcdCBtKqrlJdfLRfnUrqhSsiHMk4yVCI=')
+            logging.error("got sb_client")
+            queue_client = sb_client.get_queue(app.config.get('SERVICE_BUS_QUEUE_NAME'))
+            logging.error('got queue client')
 
+            message = Message(str(notification.id))
+            queue_client.send(message)
+            logging.error('sent message')
             #################################################
             ## END of TODO
             #################################################
 
             return redirect('/Notifications')
-        except :
+        except Exception as e:
             logging.error('log unable to save notification')
+            logging.error(e)
 
     else:
         return render_template('notification.html')
